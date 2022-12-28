@@ -18,3 +18,8 @@ val_utils/
 *.pt
 *.onnx
 *.engine
+
+yolov5/
+venv/
+save_img/
+save_video/

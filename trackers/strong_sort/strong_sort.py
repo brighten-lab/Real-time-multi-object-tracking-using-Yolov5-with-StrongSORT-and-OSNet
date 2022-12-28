@@ -76,7 +76,15 @@ class StrongSORT(object):
             class_id = track.class_id
             conf = track.conf
             queue = track.q
-            outputs.append(np.array([x1, y1, x2, y2, track_id, class_id, conf, queue]))
+            # print('x1 : ' + str(x1))
+            # print('y1 : ' + str(y1))
+            # print('x2 : ' + str(x2))
+            # print('y2 : ' + str(y2))
+            # print('track_id : ' + str(track_id))
+            # print('class_id : ' + str(class_id))
+            # print('conf : ' + str(conf))
+            # print('queue : ' + str(queue))
+            outputs.append(np.array([x1, y1, x2, y2, track_id, class_id, conf, queue], dtype=object))
         if len(outputs) > 0:
             outputs = np.stack(outputs, axis=0)
         return outputs

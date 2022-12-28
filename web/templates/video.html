@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행동 분석</title>
+</head>
+<style>
+    .title {
+        font-weight: bold;
+        font-size: 40px;
+        text-align: center;
+        margin-bottom: 2%;
+    }
+</style>
+
+<body align="center">
+    <div class="title">동영상</div>
+    <a href="vimain"><img src="{{ url_for('video_feed1') }}" width="30%"
+            onerror="this.src='/static/img/nosignal.jpg'"></a>
+    <img src="{{ url_for('video_feed2') }}" width="30%" onerror="this.src='/static/img/nosignal.jpg'"><br /></div>
+    <img src="{{ url_for('video_feed3') }}" width="30%" onerror="this.src='/static/img/nosignal.jpg'">
+    <img src="{{ url_for('video_feed4') }}" width="30%" onerror="this.src='/static/img/nosignal.jpg'"><br />
+    <button type="button" onclick="location.href='list1'">기록</button>
+    <button type="button" onclick="location.href='main'">통계</button>
+</body>
+
+</html>

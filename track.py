@@ -38,6 +38,90 @@ from yolov5.utils.plots import Annotator, colors, save_one_box
 from utils.segment.general import masks2segments, process_mask, process_mask_native
 from trackers.multi_tracker_zoo import create_tracker
 
+import threading
+from datetime import datetime
+import pymysql
+import time 
+
+maximum_people = 0
+detect = 0
+record = False
+video_url = None
+
+# 가장 많은 detection 수 저장할거임
+def max(val):
+    global maximum_people
+    if maximum_people < val:
+        maximum_people = val
+
+# maximum_people 초기화
+def max_init():
+    global maximum_people
+    maximum_people = 0
+
+def db_insert(table, URL, max_people, video_id):
+    db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='brighten0701', db='action', charset='utf8')
+    cursor = db.cursor()
+    sql = "insert into " + table
+    if table == 'video':
+        sql = sql + " (URL, max_people) values (%s, %s)"
+        cursor.execute(sql, (URL, max_people))
+    elif table == 'face':
+        sql = sql + " (URL, video_id) values (%s, %s)"
+        print(sql)
+        cursor.execute(sql, (URL, video_id))
+    db.commit()
+    db.close()
+
+# 녹화 기능
+def record():
+    global detect, maximum_people, record, video_url
+    cap = cv2.VideoCapture('rtsp://brighten:brighten0701@192.168.0.22/stream1')
+    width = int(cap.get(3))
+    height = int(cap.get(4))
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    record = False
+
+    while True:
+        ret, frame = cap.read()
+        now = datetime.now().strftime("%d_%H-%M-%S")
+        if detect > 0 and record == False:
+            print('녹화 시작')
+            video_url = str(now)
+            video = cv2.VideoWriter(os.getcwd() + "/save_video/" + video_url + ".avi" , fourcc, 20.0, (width, height))
+            record = True
+            start = time.time()
+        elif detect <= 0 and record == True:
+            print('녹화 중지')
+            video.release()
+            record = False
+            db_insert('video', video_url, maximum_people, None)
+            max_init()
+        if record == True:
+            # print('녹화 중')
+            video.write(frame)
+            if time.time() - start > 300:
+                # print('5분 초과')
+                video.release()
+                record = False
+                db_insert('video', video_url, maximum_people, None)
+                max_init()
+
+def cropFace(img, id, output):
+    if record == False and video_url is not None:
+        bbox_left = output[0]
+        bbox_top = output[1]
+        bbox_w = output[2] - output[0]
+        bbox_h = output[3] - output[1]
+        crop_img = img[bbox_top:bbox_top + int(bbox_h/3), bbox_left:bbox_left + bbox_w]
+
+        folder = os.getcwd() + '/save_img/' + video_url
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        img_url = folder + '/' + str(id) + '.jpg'
+        cv2.imwrite(img_url, crop_img)
+        db_insert('face', img_url, None, video_url)
+        # print('이미지 저장')  
 
 @torch.no_grad()
 def run(
@@ -74,7 +158,7 @@ def run(
         vid_stride=1,  # video frame-rate stride
         retina_masks=False,
 ):
-
+    global detect
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (VID_FORMATS)
@@ -218,6 +302,12 @@ def run(
                         id = output[4]
                         cls = output[5]
                         conf = output[6]
+                        # print('bbox = ' + str(bbox))
+                        # print('id = ' + str(id))
+                        # print('cls = ' + str(cls))
+                        # print('conf = ' + str(conf))
+                        ''' 이미지 crop해서 저장 '''
+                        cropFace(im0, id, output)
 
                         if save_txt:
                             # to MOT format
@@ -280,7 +370,9 @@ def run(
             
         # Print total time (preprocessing + inference + NMS + tracking)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{sum([dt.dt for dt in dt if hasattr(dt, 'dt')]) * 1E3:.1f}ms")
-
+        # print('det = ' + str(len(det))) # detection된 수 나타내는 곳!
+        max(len(det))
+        detect = len(det)
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS, %.1fms {tracking_method} update per image at shape {(1, 3, *imgsz)}' % t)
@@ -301,7 +393,7 @@ def parse_opt():
     parser.add_argument('--conf-thres', type=float, default=0.5, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='NMS IoU threshold')
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
-    parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    parser.add_argument('--device', default='0', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--show-vid', action='store_true', help='display tracking video results')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
     parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
@@ -336,7 +428,8 @@ def main(opt):
     check_requirements(requirements=ROOT / 'requirements.txt', exclude=('tensorboard', 'thop'))
     run(**vars(opt))
 
-
 if __name__ == "__main__":
+    t1 = threading.Thread(target=record)
+    t1.start()
     opt = parse_opt()
     main(opt)
