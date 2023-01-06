@@ -43,10 +43,13 @@ from datetime import datetime
 import pymysql
 import time 
 
-maximum_people = 0
-detect = 0
-record = False
-video_url = None
+import distance_measure as dm
+
+maximum_people = 0 # 해당 동영상에서 detection된 사람들 최대 수 나타내는 변수
+detect = 0 # 현재 detect된 수
+record = False # 녹화 중인지 나타내는 플래그
+video_url = None # 비디오 저장 url
+distance = {} # 이동거리 저장할 딕셔너리 {id1:(prev_dis, prev_theta, distance), id2:(prev_dis, prev_theta, distance)}
 
 # 가장 많은 detection 수 저장할거임
 def max(val):
@@ -107,6 +110,7 @@ def record():
                 db_insert('video', video_url, maximum_people, None)
                 max_init()
 
+# 얼굴 부분 이미지 저장
 def cropFace(img, id, output):
     if record == False and video_url is not None:
         bbox_left = output[0]
@@ -122,6 +126,22 @@ def cropFace(img, id, output):
         cv2.imwrite(img_url, crop_img)
         db_insert('face', img_url, None, video_url)
         # print('이미지 저장')  
+
+# 거리 측정
+def distance_measure(id, output):
+    x1 = output[0]
+    x2 = output[2]
+    y1 = output[1]
+    y2 = output[3]
+
+    if id in distance: # 이미 해당 id의 거리가 있다면
+        # 이동 거리 갱신
+        prev_dis, prev_theta, traveled_distance = dm.get_traveled(distance[id][0], distance[id][1], (x1+x2)/2, y2)
+        distance[id] = (prev_dis, prev_theta, distance[id][2] + traveled_distance)
+    else: # 해당 id가 처음 들어왔다면
+        prev_dis, prev_theta = dm.distance_angle_measure((x1+x2)/2, y2)
+        distance[id] = (prev_dis, prev_theta, 0)
+    print(distance)
 
 @torch.no_grad()
 def run(
@@ -297,7 +317,6 @@ def run(
                 # draw boxes for visualization
                 if len(outputs[i]) > 0:
                     for j, (output) in enumerate(outputs[i]):
-    
                         bbox = output[0:4]
                         id = output[4]
                         cls = output[5]
@@ -308,6 +327,9 @@ def run(
                         # print('conf = ' + str(conf))
                         ''' 이미지 crop해서 저장 '''
                         cropFace(im0, id, output)
+
+                        ''' 거리 측정 '''
+                        distance_measure(id, output)
 
                         if save_txt:
                             # to MOT format
