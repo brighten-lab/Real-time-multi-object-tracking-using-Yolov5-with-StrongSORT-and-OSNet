@@ -141,7 +141,8 @@ def distance_measure(id, output):
     else: # 해당 id가 처음 들어왔다면
         prev_dis, prev_theta = dm.distance_angle_measure((x1+x2)/2, y2)
         distance[id] = (prev_dis, prev_theta, 0)
-    print(distance)
+    print(distance) 
+    ''' distance_measure.py에서 설정 값 변경하고 다시 측정해보기 '''
 
 @torch.no_grad()
 def run(
