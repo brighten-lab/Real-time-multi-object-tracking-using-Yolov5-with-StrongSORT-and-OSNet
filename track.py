@@ -56,6 +56,7 @@ def max(val):
     global maximum_people
     if maximum_people < val:
         maximum_people = val
+    # print('해당 영상에서 탐지된 최대 인원 : ' + str(maximum_people))
 
 # maximum_people 초기화
 def max_init():
@@ -129,6 +130,7 @@ def cropFace(img, id, output):
 
 # 거리 측정
 def distance_measure(id, output):
+    global distance
     x1 = output[0]
     x2 = output[2]
     y1 = output[1]
@@ -141,8 +143,14 @@ def distance_measure(id, output):
     else: # 해당 id가 처음 들어왔다면
         prev_dis, prev_theta = dm.distance_angle_measure((x1+x2)/2, y2)
         distance[id] = (prev_dis, prev_theta, 0)
-    print(distance) 
-    ''' distance_measure.py에서 설정 값 변경하고 다시 측정해보기 '''
+
+    print(distance)
+    # 이동거리 = distance[id][2]
+    '''
+    현재 초기 값을 세팅하지 않아서 이동 거리 측정이 안되는 현상이 있음
+    그리하여 distance_measure.py에서 이동 각도가 작으면 이동하지 않은 것으로 처리하는 부분은 동작하지 않게 함
+    제대로 된 측정값을 원한다면 초기 값 세팅하고 다시 측정해봐야함
+    '''
 
 @torch.no_grad()
 def run(
