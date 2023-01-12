@@ -26,10 +26,14 @@ def distance_angle_measure(x,y):
     return d,theta
 
 
-def get_traveled(prev_dis, prev_theta, x,y):
+def get_traveled(prev_dis, prev_theta, x, y):
     dis, theta = distance_angle_measure(x,y)
+
+    '''
     # 이동 각도가 작으면 이동하지 않은  것으로 처리
     if abs(theta - prev_theta) <= 2:
+        print('theta = ' + str(theta))
+        print('prev_theta = ' + str(prev_theta))
         angle = 0
         traveled_distance = 0
     # 그렇지 않으면 코사인 법칙을 이용해서 이동 거리 구하기
@@ -40,5 +44,13 @@ def get_traveled(prev_dis, prev_theta, x,y):
         # 코사인 법칙
         traveled_distance = math.sqrt(prev_dis**2 + dis**2 - (2*prev_dis*dis*math.cos(math.radians(angle))))
         traveled_distance = round(abs(traveled_distance), 2)
+    '''
+
+    # 거리의 차로 사이각 구하기
+    angle = theta - prev_theta
+
+    # 코사인 법칙
+    traveled_distance = math.sqrt(prev_dis**2 + dis**2 - (2*prev_dis*dis*math.cos(math.radians(angle))))
+    traveled_distance = round(abs(traveled_distance), 2)
 
     return dis, theta, traveled_distance
