@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>dog_behavior_detection</title>
+    <style>
+      .video {
+        width: 1280px;
+        height: 720px;
+      }
+
+      .video-container {
+        justify-content: center;
+        text-align: center;
+        height:100%;
+      }
+      
+    </style>
+  </head>
+  
+  <body >
+  
+      <div class="video-container">
+          <img src="{{ url_for('video') }}" class="video"></img>
+      </div>
+    </body>
+</html>
