@@ -196,6 +196,16 @@ def run(
     if is_url and is_file:
         source = check_file(source)  # download
 
+    # Directories
+    if not isinstance(yolo_weights, list):  # single yolo model
+        exp_name = yolo_weights.stem
+    elif type(yolo_weights) is list and len(yolo_weights) == 1:  # single models after --yolo_weights
+        exp_name = Path(yolo_weights[0]).stem
+    else:  # multiple models after --yolo_weights
+        exp_name = 'ensemble'
+    exp_name = name if name else exp_name + "_" + reid_weights.stem
+    save_dir = increment_path(Path(project) / exp_name, exist_ok=exist_ok)  # increment run
+
     # Load model
     device = select_device(device)
     is_seg = '-seg' in str(yolo_weights)
