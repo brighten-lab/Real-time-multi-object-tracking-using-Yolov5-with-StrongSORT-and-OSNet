@@ -155,8 +155,8 @@ def distance_measure(id, output):
 @torch.no_grad()
 def run(
         source='0',
-        yolo_weights=WEIGHTS / 'weights/yolov5n.pt',  # model.pt path(s),
-        reid_weights=WEIGHTS / 'weights/osnet_x0_25_msmt17.pt',  # model.pt path,
+        yolo_weights=WEIGHTS / 'yolov5l.pt',  # model.pt path(s),
+        reid_weights=WEIGHTS / 'osnet_x0_25_msmt17.pt',  # model.pt path,
         tracking_method='strongsort',
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
@@ -415,7 +415,7 @@ def run(
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yolo-weights', nargs='+', type=Path, default=WEIGHTS / 'yolov5s-seg.pt', help='model.pt path(s)')
+    parser.add_argument('--yolo-weights', nargs='+', type=Path, default=WEIGHTS / 'yolov5l.pt', help='model.pt path(s)')
     parser.add_argument('--reid-weights', type=Path, default=WEIGHTS / 'osnet_x0_25_msmt17.pt')
     parser.add_argument('--tracking-method', type=str, default='strongsort', help='strongsort, ocsort, bytetrack')
     parser.add_argument('--source', type=str, default='0', help='file/dir/URL/glob, 0 for webcam')  
@@ -432,7 +432,7 @@ def parse_opt():
     parser.add_argument('--save-vid', action='store_true', help='save video tracking results')
     parser.add_argument('--nosave', action='store_true', help='do not save images/videos')
     # class 0 is person, 1 is bycicle, 2 is car... 79 is oven
-    parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
+    parser.add_argument('--classes', default=0, nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--visualize', action='store_true', help='visualize features')
