@@ -155,8 +155,8 @@ def distance_measure(id, output):
 @torch.no_grad()
 def run(
         source='0',
-        yolo_weights=WEIGHTS / 'yolov5m.pt',  # model.pt path(s),
-        reid_weights=WEIGHTS / 'osnet_x0_25_msmt17.pt',  # model.pt path,
+        yolo_weights=WEIGHTS / 'weights/yolov5n.pt',  # model.pt path(s),
+        reid_weights=WEIGHTS / 'weights/osnet_x0_25_msmt17.pt',  # model.pt path,
         tracking_method='strongsort',
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
@@ -195,17 +195,6 @@ def run(
     webcam = source.isnumeric() or source.endswith('.txt') or (is_url and not is_file)
     if is_url and is_file:
         source = check_file(source)  # download
-
-    # Directories
-    if not isinstance(yolo_weights, list):  # single yolo model
-        exp_name = yolo_weights.stem
-    elif type(yolo_weights) is list and len(yolo_weights) == 1:  # single models after --yolo_weights
-        exp_name = Path(yolo_weights[0]).stem
-    else:  # multiple models after --yolo_weights
-        exp_name = 'ensemble'
-    exp_name = name if name else exp_name + "_" + reid_weights.stem
-    save_dir = increment_path(Path(project) / exp_name, exist_ok=exist_ok)  # increment run
-    (save_dir / 'tracks' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
     # Load model
     device = select_device(device)
