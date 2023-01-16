@@ -42,6 +42,7 @@ import threading
 from datetime import datetime
 import pymysql
 import time 
+from flask import Flask, render_template, Response
 
 import distance_measure as dm
 
@@ -50,6 +51,7 @@ detect = 0 # 현재 detect된 수
 record = False # 녹화 중인지 나타내는 플래그
 video_url = None # 비디오 저장 url
 distance = {} # 이동거리 저장할 딕셔너리 {id1:(prev_dis, prev_theta, distance), id2:(prev_dis, prev_theta, distance)}
+im0 = None # 프레임 (플라스크 송출용으로 쓰려고 전역 처리)
 
 # 가장 많은 detection 수 저장할거임
 def max(val):
@@ -99,7 +101,7 @@ def record():
             print('녹화 중지')
             video.release()
             record = False
-            db_insert('video', video_url, maximum_people, None)
+            db_insert('video', video_url + '.avi', maximum_people, None)
             max_init()
         if record == True:
             # print('녹화 중')
@@ -108,7 +110,7 @@ def record():
                 # print('5분 초과')
                 video.release()
                 record = False
-                db_insert('video', video_url, maximum_people, None)
+                db_insert('video', video_url + '.avi', maximum_people, None)
                 max_init()
 
 # 얼굴 부분 이미지 저장
@@ -125,7 +127,7 @@ def cropFace(img, id, output):
             os.mkdir(folder)
         img_url = folder + '/' + str(id) + '.jpg'
         cv2.imwrite(img_url, crop_img)
-        db_insert('face', img_url, None, video_url)
+        db_insert('face', video_url + '/' + str(id) + '.jpg', None, video_url)
         # print('이미지 저장')  
 
 # 거리 측정
@@ -187,7 +189,7 @@ def run(
         vid_stride=1,  # video frame-rate stride
         retina_masks=False,
 ):
-    global detect
+    global detect, im0
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (VID_FORMATS)
@@ -458,8 +460,27 @@ def main(opt):
     check_requirements(requirements=ROOT / 'requirements.txt', exclude=('tensorboard', 'thop'))
     run(**vars(opt))
 
+''' 아래부턴 플라스크 '''
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+def gen():
+    while True:
+        img = cv2.imencode('.jpg', im0)[1].tobytes()
+        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+
+@app.route('/video')
+def video():
+    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 if __name__ == "__main__":
-    t1 = threading.Thread(target=record)
-    t1.start()
     opt = parse_opt()
-    main(opt)
+    t1 = threading.Thread(target=main, args=(opt,))
+    t2 = threading.Thread(target=record)
+    t1.start()
+    t2.start()
+
+    app.run(host='0.0.0.0', port=5001)
