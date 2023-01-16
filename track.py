@@ -101,7 +101,7 @@ def record():
             print('녹화 중지')
             video.release()
             record = False
-            db_insert('video', video_url, maximum_people, None)
+            db_insert('video', video_url + '.avi', maximum_people, None)
             max_init()
         if record == True:
             # print('녹화 중')
@@ -110,7 +110,7 @@ def record():
                 # print('5분 초과')
                 video.release()
                 record = False
-                db_insert('video', video_url, maximum_people, None)
+                db_insert('video', video_url + '.avi', maximum_people, None)
                 max_init()
 
 # 얼굴 부분 이미지 저장
@@ -127,7 +127,7 @@ def cropFace(img, id, output):
             os.mkdir(folder)
         img_url = folder + '/' + str(id) + '.jpg'
         cv2.imwrite(img_url, crop_img)
-        db_insert('face', img_url, None, video_url)
+        db_insert('face', video_url + '/' + str(id) + '.jpg', None, video_url)
         # print('이미지 저장')  
 
 # 거리 측정
@@ -483,4 +483,4 @@ if __name__ == "__main__":
     t1.start()
     t2.start()
 
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)
