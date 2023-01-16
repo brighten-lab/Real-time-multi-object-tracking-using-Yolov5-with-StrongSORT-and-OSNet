@@ -75,7 +75,7 @@ def db_insert(table, URL, max_people, video_id):
     elif table == 'face':
         sql = sql + " (URL, video_id) values (%s, %s)"
         print(sql)
-        cursor.execute(sql, (URL, video_id))
+        cursor.execute(sql, (URL, video_id + '.avi'))
     db.commit()
     db.close()
 
