@@ -1,0 +1,15 @@
+.video {
+  width: 630px;
+  height: auto;
+  object-fit: cover;
+}
+
+#video1{
+  cursor: pointer;
+}
+
+.video-container {
+  justify-content: center;
+  text-align: center;
+  height:0;
+}

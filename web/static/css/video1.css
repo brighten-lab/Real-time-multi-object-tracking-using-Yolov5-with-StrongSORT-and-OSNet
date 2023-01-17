@@ -1,0 +1,21 @@
+.video {
+  width: 650px;
+  height: auto;
+  object-fit: cover;
+  }
+.video-container {
+  justify-content: center;
+  text-align: center;
+  height:0;
+  margin: 20px;
+  }
+.face-container{
+  justify-content: center;
+  text-align: center;
+  height:0;
+  margin: 20px;
+}
+.face{
+  width: 200px;
+  height: 150px;
+}
