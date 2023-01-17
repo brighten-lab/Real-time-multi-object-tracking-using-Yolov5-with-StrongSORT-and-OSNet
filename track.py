@@ -75,7 +75,7 @@ def db_insert(table, URL, max_people, video_id):
     elif table == 'face':
         sql = sql + " (URL, video_id) values (%s, %s)"
         print(sql)
-        cursor.execute(sql, (URL, video_id + '.avi'))
+        cursor.execute(sql, (URL, video_id + '.mp4'))
     db.commit()
     db.close()
 
@@ -94,14 +94,14 @@ def record():
         if detect > 0 and record == False:
             print('녹화 시작')
             video_url = str(now)
-            video = cv2.VideoWriter(os.getcwd() + "/web/static/save_video/" + video_url + ".avi" , fourcc, 20.0, (width, height))
+            video = cv2.VideoWriter(os.getcwd() + "/web/static/save_video/" + video_url + ".mp4" , fourcc, 20.0, (width, height))
             record = True
             start = time.time()
         elif detect <= 0 and record == True:
             print('녹화 중지')
             video.release()
             record = False
-            db_insert('video', video_url + '.avi', maximum_people, None)
+            db_insert('video', video_url + '.mp4', maximum_people, None)
             max_init()
         if record == True:
             # print('녹화 중')
@@ -110,7 +110,7 @@ def record():
                 # print('5분 초과')
                 video.release()
                 record = False
-                db_insert('video', video_url + '.avi', maximum_people, None)
+                db_insert('video', video_url + '.mp4', maximum_people, None)
                 max_init()
 
 # 얼굴 부분 이미지 저장
