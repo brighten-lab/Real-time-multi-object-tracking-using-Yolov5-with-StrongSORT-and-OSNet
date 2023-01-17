@@ -94,12 +94,14 @@ def record():
         if detect > 0 and record == False:
             print('녹화 시작')
             video_url = str(now)
-            video = cv2.VideoWriter(os.getcwd() + "/web/static/save_video/" + video_url + ".mp4" , fourcc, 20.0, (width, height))
+            video = cv2.VideoWriter(os.getcwd() + "/web/static/save_video/" + video_url + "_temp.mp4" , fourcc, 20.0, (width, height))
             record = True
             start = time.time()
         elif detect <= 0 and record == True:
             print('녹화 중지')
             video.release()
+            codec_t = threading.Thread(target=codec, args=(os.getcwd() + "/web/static/save_video/" + video_url + "_temp.mp4", os.getcwd() + "/web/static/save_video/" + video_url + ".mp4"))
+            codec_t.start()
             record = False
             db_insert('video', video_url + '.mp4', maximum_people, None)
             max_init()
@@ -109,9 +111,16 @@ def record():
             if time.time() - start > 300:
                 # print('5분 초과')
                 video.release()
+                codec_t = threading.Thread(target=codec, args=(os.getcwd() + "/web/static/save_video/" + video_url + "_temp.mp4", os.getcwd() + "/web/static/save_video/" + video_url + ".mp4"))
+                codec_t.start()
                 record = False
                 db_insert('video', video_url + '.mp4', maximum_people, None)
                 max_init()
+
+# 코덱 변환
+def codec(path, new_path):
+    os.system(f'ffmpeg -i {path} -vcodec libx264 {new_path}')
+    os.remove(path)
 
 # 얼굴 부분 이미지 저장
 def cropFace(img, id, output):
