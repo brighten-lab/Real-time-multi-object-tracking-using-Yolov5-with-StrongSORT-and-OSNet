@@ -94,7 +94,7 @@ def record():
         if detect > 0 and record == False:
             print('녹화 시작')
             video_url = str(now)
-            video = cv2.VideoWriter(os.getcwd() + "/save_video/" + video_url + ".avi" , fourcc, 20.0, (width, height))
+            video = cv2.VideoWriter(os.getcwd() + "/web/static/save_video/" + video_url + ".avi" , fourcc, 20.0, (width, height))
             record = True
             start = time.time()
         elif detect <= 0 and record == True:
@@ -122,7 +122,7 @@ def cropFace(img, id, output):
         bbox_h = output[3] - output[1]
         crop_img = img[bbox_top:bbox_top + int(bbox_h/3), bbox_left:bbox_left + bbox_w]
 
-        folder = os.getcwd() + '/save_img/' + video_url
+        folder = os.getcwd() + '/web/static/save_img/' + video_url
         if not os.path.exists(folder):
             os.mkdir(folder)
         img_url = folder + '/' + str(id) + '.jpg'
