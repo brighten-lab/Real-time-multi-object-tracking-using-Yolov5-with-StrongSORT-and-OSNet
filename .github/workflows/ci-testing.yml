@@ -37,8 +37,8 @@ jobs:
           # If not importing this prior to installing requirements...
           # ImportError: lap requires numpy, please "pip install numpy". Workaround...
           pip install numpy
-          pip install -r requirements_a.txt --extra-index-url https://download.pytorch.org/whl/cpu
-          pip install requests
+          pip install -r ci_requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+          pip install requests flask pymysql
           python --version
           pip --version
           pip list
