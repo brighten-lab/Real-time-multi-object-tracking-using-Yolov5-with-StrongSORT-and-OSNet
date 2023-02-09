@@ -1,19 +1,33 @@
-.video {
+/* .container{
+  width: 900px;
+  justify-content: center;
+  text-align: center;
+  height:auto;
+} */
+.container{
+  position: relative;
+  width: 700px;
+  height: auto;
+  top: 50%;
+  left: 50%;
+  
+  transform: translate(-50%);
+}
+.video-container {
+  width: 700px;
+  float: left;
+  margin: 5px;
+  }
+#lastVideo {
   width: 650px;
   height: auto;
   object-fit: cover;
   }
-.video-container {
-  justify-content: center;
-  text-align: center;
-  height:0;
-  margin: 20px;
-  }
 .face-container{
+  width: 300px;
+  height:300px;
   justify-content: center;
   text-align: center;
-  height:0;
-  margin: 20px;
 }
 .face{
   width: 200px;

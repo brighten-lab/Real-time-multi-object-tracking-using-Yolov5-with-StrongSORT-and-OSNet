@@ -3,18 +3,44 @@
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link rel="stylesheet" href="static/css/video1.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/video1.css" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
   </head>
   
   <body>
-      <div class="video-container">
-        <img src="{{url_for('static', filename='save_video/' + video)}}" class="video" id="lastVideo">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+              <li class="nav-item">
+                  <a href="/video" class="nav-link">←</a>
+              </li>
+          </ul>
       </div>
-      <br><br>
-      <div class="face-container">
-        {% for img in face %}
-        <img src="{{url_for('static', filename='save_img/' + img)}}" class="face">
-        {% endfor %}
-      </div>
+    </nav><br><br>
+
+    <div class="container">
+        
+        <div class="video-container">
+          <video autoplay muted controls preload class="video" id="lastVideo" width="650px">
+            <source src="{{url_for('static', filename='save_video/' + video)}}" type="video/mp4">
+          </video>
+        </div>
+        <br><br>
+
+        <div class="face-container">
+          {% for img, name in result %}
+            <img src="{{url_for('static', filename='save_img/' + img)}}" class="face">
+            <h4>Is it {{name}} ?</h4>
+          <button>Yes</button>
+          <button>No</button>
+          {% endfor %}
+        </div>
+
+    </div>
   </body>
 </html>

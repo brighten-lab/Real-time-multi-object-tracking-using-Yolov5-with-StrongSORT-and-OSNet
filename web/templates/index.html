@@ -4,14 +4,52 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link rel="stylesheet" href="/static/css/index.css" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
   </head>
   
   <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+              <li class="nav-item">
+                  <a href="/" class="nav-link">←</a>
+              </li>
+          </ul>
+      </div>
+    </nav><br>
+
+    <div class="btnss">
+    <button class="btn_record" type="button" >기록조회</button>
+    <button class="btn_statistics" type="button" onClick="location.href='view/chart'">통계조회</button>
+    </div>
+
       <div class="video-container">
-          <img src="http://192.168.0.128:5001/video" onClick="location.href='video1'" class="video" id="video1"></img>
+        <div class="wrap">
+        <div id="camera_1" class="camera">
           <img src="http://192.168.0.128:5001/video" class="video"></img>
+          <button class="check" type="button" onClick="location.href='video/1'">영상조회</button>
+        </div>
+
+        <div id="camera_2" class="camera">
+          <img src="http://192.168.0.128:5001/video" class="video"></img>
+          <button class="check" type="button">영상조회</button>
+        </div>
+
+        <div id="camera_3" class="camera">
           <img src="/static/image/noSignal.png" class="video"></img>
+          <button class="check" type="button">영상조회</button>
+        </div>
+
+        <div id="camera_4" class="camera">
           <img src="/static/image/noSignal.png" class="video"></img>
+          <button class="check" type="button">영상조회</button>
+        </div>
+      </div>
       </div>
   </body>
 </html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리스트</title>
+</head>
+
+<style>
+    .title {
+        font-weight: bold;
+        font-size: 40px;
+        text-align: center;
+    }
+
+    table {
+        border: 2px solid;
+        text-align: center;
+        margin-top: 2%;
+    }
+
+    th,
+    td {
+        border-bottom: 1px solid #444444;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #bbdefb;
+    }
+
+    .cover div {
+        display: inline-block;
+    }
+
+    .left {
+        float: left;
+        margin-right: 40%;
+    }
+</style>
+
+<body>
+    <div class="cover">
+        <img class=left src='/static/img/pngwing.com.png' width="50" onclick="history.back();">
+        <div class="title">전체 리스트 </div>
+    </div>
+    <table align="center" width="80%">
+        <thead>
+            <tr>
+                <th>행동유형</th>
+                <th>시작시간</th>
+                <th>종료시간</th>
+                <th>지속시간</th>
+                <th>URL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in rows %}
+            <tr>
+                <td>{{ i[0] }}</td>
+                <td>{{ i[1] }}</td>
+                <td>{{ i[2] }}</td>
+                <td>{{ i[3] }}</td>
+                <td><a href="/list1/{{i[4]}}" style="text-decoration-line: none; color:black;">{{ i[4] }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+</html>

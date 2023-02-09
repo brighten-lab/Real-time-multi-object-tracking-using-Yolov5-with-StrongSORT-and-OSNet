@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" href="static/css/video1.css" type="text/css">
+  </head>
+  
+  <body>
+      <div class="video-container">
+        {% if error["video"] %}
+        <div><video autoplay muted controls preload class="video" id="lastVideo">
+          <source src="{{url_for('static', filename='save_video/' + video)}}" type="video/mp4" style="width: 650px;">
+        </video></div>
+        {% endif %}
+        {% if not error["video"] %}
+        <h4>Detected video does not exist</h4>
+        {% endif %}
+      </div>
+      <br><br>
+      <div class="face-container">
+        <h4>Detected face does not exist</h4>
+      </div>
+  </body>
+</html>

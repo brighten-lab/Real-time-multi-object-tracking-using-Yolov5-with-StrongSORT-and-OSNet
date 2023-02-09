@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행동 분석 시각화</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <script>
+        $(function () {
+            $("#datepicker1").datepicker();
+        });
+        $(function () {
+            $("#datepicker2").datepicker();
+        });
+    </script>
+</head>
+
+<style>
+    .cover div {
+        display: inline-block;
+    }
+
+    .left {
+        float: left;
+        margin-right: 10px;
+    }
+</style>
+
+<body>
+    <div class="cover">
+        <img class="left" src='/static/img/pngwing.com.png' width="50" onclick="history.back();">
+        <div class="title" style="
+  font-weight: bold; 
+  font-size: 25px;
+  ">
+            <span style="color:#008000">청암</span> 낮생활지원센터<br>
+            <span style="color:#FFA500">관찰기록현황</span> <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;데이터 분석
+        </div>
+    </div>
+
+    <div class="container" align="center">
+        <p>기간: <input type="text" id="datepicker1" value="12/02/2022">
+            <input type="text" id="datepicker2" value="12/02/2022">
+        </p>
+    </div>
+
+    <div class="container">
+        <style>
+            #div1 {
+                width: 26%;
+                height: 500px;
+                float: left;
+            }
+        </style>
+
+        <script>
+            am5.ready(function () {
+
+                var root = am5.Root.new("div1");
+
+                root.setThemes([
+                    am5themes_Animated.new(root)
+                ]);
+
+                var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                    panX: false,
+                    panY: false,
+                    wheelX: "none",
+                    wheelY: "none"
+                }));
+
+                var yRenderer = am5xy.AxisRendererY.new(root, {
+                    minGridDistance: 30
+                });
+
+                var yAxis = chart.yAxes.push(am5xy.CategoryAxis.new(root, {
+                    maxDeviation: 0,
+                    categoryField: "action",
+                    renderer: yRenderer,
+                    tooltip: am5.Tooltip.new(root, { themeTags: ["axis"] })
+                }));
+
+                var xAxis = chart.xAxes.push(am5xy.ValueAxis.new(root, {
+                    maxDeviation: 0,
+                    min: 0,
+                    extraMax: 0.1,
+                    renderer: am5xy.AxisRendererX.new(root, {})
+                }));
+
+                var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+                    name: "Series 1",
+                    xAxis: xAxis,
+                    yAxis: yAxis,
+                    valueXField: "value",
+                    categoryYField: "action",
+                    tooltip: am5.Tooltip.new(root, {
+                        pointerOrientation: "left",
+                        labelText: "{valueX}"
+                    })
+                }));
+
+                series.columns.template.setAll({
+                    cornerRadiusTR: 5,
+                    cornerRadiusBR: 5
+                });
+
+                series.columns.template.adapters.add("fill", function (fill, target) {
+                    return chart.get("colors").getIndex(series.columns.indexOf(target));
+                });
+
+                series.columns.template.adapters.add("stroke", function (stroke, target) {
+                    return chart.get("colors").getIndex(series.columns.indexOf(target));
+                });
+
+                var data = [
+                    {
+                        "action": "bend/bow \n(at the waist)",
+                        "value": 0
+                    },
+                    {
+                        "action": "crouch/kneel",
+                        "value": 0
+                    },
+                    {
+                        "action": "fall down",
+                        "value": 0
+                    },
+                    {
+                        "action": "get up",
+                        "value": 0
+                    },
+                    {
+                        "action": "jump/leep",
+                        "value": 0
+                    },
+                    {
+                        "action": "lie/sleep",
+                        "value": 0
+                    },
+                    {
+                        "action": "run/jog",
+                        "value": 0
+                    },
+                    {
+                        "action": "sit",
+                        "value": 1180
+                    },
+                    {
+                        "action": "stand",
+                        "value": 126
+                    },
+                    {
+                        "action": "walk",
+                        "value": 16
+                    }
+                ];
+
+                yAxis.data.setAll(data);
+                series.data.setAll(data);
+                sortCategoryAxis();
+
+                function getSeriesItem(category) {
+                    for (var i = 0; i < series.dataItems.length; i++) {
+                        var dataItem = series.dataItems[i];
+                        if (dataItem.get("categoryY") == category) {
+                            return dataItem;
+                        }
+                    }
+                }
+
+                chart.set("cursor", am5xy.XYCursor.new(root, {
+                    behavior: "none",
+                    xAxis: xAxis,
+                    yAxis: yAxis
+                }));
+
+                function sortCategoryAxis() {
+
+                    series.dataItems.sort(function (x, y) {
+                        return x.get("valueX") - y.get("valueX"); // descending
+                        //return y.get("valueY") - x.get("valueX"); // ascending
+                    })
+
+                    // Go through each axis item
+                    am5.array.each(yAxis.dataItems, function (dataItem) {
+                        // get corresponding series item
+                        var seriesDataItem = getSeriesItem(dataItem.get("category"));
+
+                        if (seriesDataItem) {
+                            // get index of series data item
+                            var index = series.dataItems.indexOf(seriesDataItem);
+                            // calculate delta position
+                            var deltaPosition = (index - dataItem.get("index", 0)) / series.dataItems.length;
+                            // set index to be the same as series data item index
+                            dataItem.set("index", index);
+                            // set deltaPosition instanlty
+                            dataItem.set("deltaPosition", -deltaPosition);
+                            // animate delta position to 0
+                            dataItem.animate({
+                                key: "deltaPosition",
+                                to: 0,
+                                duration: 1000,
+                                easing: am5.ease.out(am5.ease.cubic)
+                            })
+                        }
+                    });
+
+                    yAxis.dataItems.sort(function (x, y) {
+                        return x.get("index") - y.get("index");
+                    });
+                }
+
+            }); 
+        </script>
+
+        <div id="div1"></div>
+    </div>
+
+    <div class="container2">
+        <style>
+            #div2 {
+                width: 26%;
+                height: 500px;
+                float: left;
+            }
+        </style>
+
+        <script>
+            am5.ready(function () {
+
+                var root = am5.Root.new("div2");
+
+                root.setThemes([
+                    am5themes_Animated.new(root)
+                ]);
+
+                var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                    panX: false,
+                    panY: false,
+                    wheelX: "none",
+                    wheelY: "none"
+                }));
+
+                var yRenderer = am5xy.AxisRendererY.new(root, {
+                    minGridDistance: 30
+                });
+
+                var yAxis = chart.yAxes.push(am5xy.CategoryAxis.new(root, {
+                    maxDeviation: 0,
+                    categoryField: "action",
+                    renderer: yRenderer,
+                    tooltip: am5.Tooltip.new(root, { themeTags: ["axis"] })
+                }));
+
+                var xAxis = chart.xAxes.push(am5xy.ValueAxis.new(root, {
+                    maxDeviation: 0,
+                    min: 0,
+                    extraMax: 0.1,
+                    renderer: am5xy.AxisRendererX.new(root, {})
+                }));
+
+                var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+                    name: "Series 1",
+                    xAxis: xAxis,
+                    yAxis: yAxis,
+                    valueXField: "value",
+                    categoryYField: "action",
+                    tooltip: am5.Tooltip.new(root, {
+                        pointerOrientation: "left",
+                        labelText: "{valueX}"
+                    })
+                }));
+
+                series.columns.template.setAll({
+                    cornerRadiusTR: 5,
+                    cornerRadiusBR: 5
+                });
+
+                series.columns.template.adapters.add("fill", function (fill, target) {
+                    return chart.get("colors").getIndex(series.columns.indexOf(target));
+                });
+
+                series.columns.template.adapters.add("stroke", function (stroke, target) {
+                    return chart.get("colors").getIndex(series.columns.indexOf(target));
+                });
+
+                var data = [
+                    {
+                        "action": "bend/bow \n(at the waist)",
+                        "value":0
+                    },
+                    {
+                        "action": "crouch/kneel",
+                        "value": 0
+                    },
+                    {
+                        "action": "fall down",
+                        "value": 0
+                    },
+                    {
+                        "action": "get up",
+                        "value": 0
+                    },
+                    {
+                        "action": "jump/leep",
+                        "value": 0
+                    },
+                    {
+                        "action": "lie/sleep",
+                        "value": 0
+                    },
+                    {
+                        "action": "run/jog",
+                        "value": 0
+                    },
+                    {
+                        "action": "sit",
+                        "value": 98.33
+                    },
+                    {
+                        "action": "stand",
+                        "value": 10.50
+                    },
+                    {
+                        "action": "walk",
+                        "value": 1.33
+                    }
+                ];
+
+                yAxis.data.setAll(data);
+                series.data.setAll(data);
+                sortCategoryAxis();
+
+                function getSeriesItem(category) {
+                    for (var i = 0; i < series.dataItems.length; i++) {
+                        var dataItem = series.dataItems[i];
+                        if (dataItem.get("categoryY") == category) {
+                            return dataItem;
+                        }
+                    }
+                }
+
+                chart.set("cursor", am5xy.XYCursor.new(root, {
+                    behavior: "none",
+                    xAxis: xAxis,
+                    yAxis: yAxis
+                }));
+
+                function sortCategoryAxis() {
+
+                    series.dataItems.sort(function (x, y) {
+                        return x.get("valueX") - y.get("valueX"); // descending
+                        //return y.get("valueY") - x.get("valueX"); // ascending
+                    })
+
+                    // Go through each axis item
+                    am5.array.each(yAxis.dataItems, function (dataItem) {
+                        // get corresponding series item
+                        var seriesDataItem = getSeriesItem(dataItem.get("category"));
+
+                        if (seriesDataItem) {
+                            // get index of series data item
+                            var index = series.dataItems.indexOf(seriesDataItem);
+                            // calculate delta position
+                            var deltaPosition = (index - dataItem.get("index", 0)) / series.dataItems.length;
+                            // set index to be the same as series data item index
+                            dataItem.set("index", index);
+                            // set deltaPosition instanlty
+                            dataItem.set("deltaPosition", -deltaPosition);
+                            // animate delta position to 0
+                            dataItem.animate({
+                                key: "deltaPosition",
+                                to: 0,
+                                duration: 1000,
+                                easing: am5.ease.out(am5.ease.cubic)
+                            })
+                        }
+                    });
+
+                    yAxis.dataItems.sort(function (x, y) {
+                        return x.get("index") - y.get("index");
+                    });
+                }
+
+            });
+        </script>
+
+        <div id="div2"></div>
+    </div>
+
+    <div class="container3">
+        <style>
+            #div3 {
+                width: 48%;
+                height: 240px;
+                float: right;
+            }
+        </style>
+
+        <script>
+            am5.ready(function () {
+
+                var root = am5.Root.new("div3");
+
+                root.setThemes([
+                    am5themes_Animated.new(root)
+                ]);
+
+                var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                    panX: true,
+                    panY: true,
+                    wheelX: "panX",
+                    wheelY: "zoomX",
+                    pinchZoomX: true
+                }));
+
+                var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+                cursor.lineY.set("visible", false);
+
+                var xRenderer = am5xy.AxisRendererX.new(root, { minGridDistance: 30 });
+                xRenderer.labels.template.setAll({
+                    rotation: -90,
+                    centerY: am5.p50,
+                    centerX: am5.p100,
+                    paddingRight: 15
+                });
+
+                var xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+                    maxDeviation: 0.3,
+                    categoryField: "time",
+                    renderer: xRenderer,
+                    tooltip: am5.Tooltip.new(root, {})
+                }));
+
+                var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+                    maxDeviation: 0.3,
+                    renderer: am5xy.AxisRendererY.new(root, {})
+                }));
+
+                var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+                    name: "Series 1",
+                    xAxis: xAxis,
+                    yAxis: yAxis,
+                    valueYField: "value",
+                    sequencedInterpolation: true,
+                    categoryXField: "time",
+                    tooltip: am5.Tooltip.new(root, {
+                        labelText: "{valueY}"
+                    })
+                }));
+
+                series.columns.template.setAll({ cornerRadiusTL: 5, cornerRadiusTR: 5 });
+                series.columns.template.adapters.add("fill", function (fill, target) {
+                    return chart.get("colors").getIndex(series.columns.indexOf(target));
+                });
+
+                series.columns.template.adapters.add("stroke", function (stroke, target) {
+                    return chart.get("colors").getIndex(series.columns.indexOf(target));
+                });
+
+                var data = [{
+                    time: "1분 미만",
+                    value: 2025
+                }, {
+                    time: "2분 미만",
+                    value: 1882
+                }, {
+                    time: "3분 미만",
+                    value: 1809
+                }, {
+                    time: "4분 미만",
+                    value: 1322
+                }, {
+                    time: "5분 미만",
+                    value: 1122
+                }, {
+                    time: "10분 미만",
+                    value: 1114
+                }, {
+                    time: "20분 미만",
+                    value: 984
+                }, {
+                    time: "30분 미만",
+                    value: 711
+                }, {
+                    time: "40분 미만",
+                    value: 665
+                }, {
+                    time: "60분 미만",
+                    value: 443
+                }, {
+                    time: "60분 이상",
+                    value: 441
+                }];
+
+                xAxis.data.setAll(data);
+                series.data.setAll(data);
+
+                series.appear(1000);
+                chart.appear(1000, 100);
+
+            }); 
+        </script>
+        <div id="div3"></div>
+    </div>
+
+    <div class="container4">
+        <style>
+            #div4 {
+                width: 48%;
+                height: 240px;
+                float: right;
+            }
+        </style>
+
+        <script>
+            am5.ready(function () {
+
+                var root = am5.Root.new("div4");
+
+                root.dateFormatter.setAll({
+                    dateFormat: "HH:mm",
+                    dateFields: ["valueX"]
+                });
+
+                root.setThemes([
+                    am5themes_Animated.new(root)
+                ]);
+
+                var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                    panX: true,
+                    panY: true,
+                    wheelX: "panX",
+                    wheelY: "zoomX",
+                    pinchZoomX: true
+                }));
+
+                var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+                    behavior: "none"
+                }));
+                cursor.lineY.set("visible", false);
+
+                var data = [
+                    { hour: "2022 12 9", value: 1 },
+                    { hour: "2022 12 10", value: 1 },
+                    { hour: "2022 12 11", value: 1 },
+                    { hour: "2022 12 12", value: 1 },
+                    { hour: "2022 12 13", value: 1 },
+                    { hour: "2022 12 14", value: 518 },
+                    { hour: "2022 12 15", value: 1 },
+                    { hour: "2022 12 16", value: 1 },
+                    { hour: "2022 12 17", value: 764 },
+                    { hour: "2022 12 18", value: 40 }
+                ];
+
+                var xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+                    baseInterval: { timeUnit: "hour", count: 1 },
+                    renderer: am5xy.AxisRendererX.new(root, {}),
+                    tooltip: am5.Tooltip.new(root, {})
+                }));
+
+                var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+                    logarithmic: true,
+                    renderer: am5xy.AxisRendererY.new(root, {})
+                }));
+
+                var series = chart.series.push(am5xy.LineSeries.new(root, {
+                    xAxis: xAxis,
+                    yAxis: yAxis,
+                    valueYField: "value",
+                    valueXField: "hour",
+                    tooltip: am5.Tooltip.new(root, {
+                        labelText: "{valueX}: {valueY}"
+                    })
+                }));
+
+                series.strokes.template.setAll({
+                    strokeWidth: 3
+                });
+
+                series.data.processor = am5.DataProcessor.new(root, {
+                    dateFormat: "yyyy MM HH:mm",
+                    dateFields: ["hour"]
+                });
+
+                series.data.setAll(data);
+
+                chart.set("scrollbarX", am5.Scrollbar.new(root, {
+                    orientation: "horizontal"
+                }));
+
+                series.appear(1000);
+                chart.appear(1000, 100);
+
+            });
+        </script>
+
+        <div id="div4"></div>
+    </div>
+
+    <div class="container5">
+        <style>
+            #div5 {
+                width: 100%;
+                height: 400px;
+                clear: both;
+            }
+        </style>
+
+        <script>
+
+            am5.ready(function () {
+
+                var root = am5.Root.new("div5");
+
+                root.dateFormatter.setAll({
+                    dateFormat: "MMM dd",
+                    dateFields: ["valueX"]
+                });
+
+                root.setThemes([
+                    am5themes_Animated.new(root)
+                ]);
+
+                var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                    panX: true,
+                    panY: true,
+                    wheelX: "panX",
+                    wheelY: "zoomX",
+                    pinchZoomX: true
+                }));
+
+                var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+                    behavior: "none"
+                }));
+                cursor.lineY.set("visible", false);
+
+                var data = [
+                    { day: "2022 12 06", value: 1 },
+                    { day: "2022 12 07", value: 1 },
+                    { day: "2022 12 08", value: 1 },
+                    { day: "2022 12 09", value: 1 },
+                    { day: "2022 12 10", value: 1 },
+                    { day: "2022 12 11", value: 1 },
+                    { day: "2022 12 12", value: 1 },
+                    { day: "2022 12 13", value: 1 },
+                    { day: "2022 12 14", value: 1 },
+                    { day: "2022 12 15", value: 314 },
+                    { day: "2022 12 16", value: 114 },
+                    { day: "2022 12 17", value: 57 }
+                ];
+
+                var xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+                    baseInterval: { timeUnit: "day", count: 1 },
+                    renderer: am5xy.AxisRendererX.new(root, {}),
+                    tooltip: am5.Tooltip.new(root, {})
+                }));
+
+                var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+                    logarithmic: true,
+                    renderer: am5xy.AxisRendererY.new(root, {})
+                }));
+
+                var series = chart.series.push(am5xy.LineSeries.new(root, {
+                    xAxis: xAxis,
+                    yAxis: yAxis,
+                    valueYField: "value",
+                    valueXField: "day",
+                    tooltip: am5.Tooltip.new(root, {
+                        labelText: "{valueX}: {valueY}"
+                    })
+                }));
+
+                series.strokes.template.setAll({
+                    strokeWidth: 3
+                });
+
+                series.data.processor = am5.DataProcessor.new(root, {
+                    dateFormat: "yyyy-MM-dd",
+                    dateFields: ["day"]
+                });
+
+                series.data.setAll(data);
+
+                chart.set("scrollbarX", am5.Scrollbar.new(root, {
+                    orientation: "horizontal"
+                }));
+
+                series.appear(1000);
+                chart.appear(1000, 100);
+
+            });
+        </script>
+
+        <div id="div5"></div>
+    </div>
+
+</body>
+
+</html>

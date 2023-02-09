@@ -1,0 +1,24 @@
+<!-- sign_in.html -->
+{% extends "base.html" %}
+
+{% block title %}로그인{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <h2 align="center" style="margin: 5%">로그인</h2>
+    <div class="mb-3">
+        <label for="InputEmail1" class="form-label">이메일</label>
+        <input name="email" type="email" class="form-control" id="InputEmail1">
+    </div>
+
+    <div class="mb-3">
+        <label for="InputPassword1" class="form-label">비밀번호</label>
+        <input name="password1" type="password" class="form-control" id="InputPassword1"">
+    </div>
+    <div align=" center">
+        <button type=" submit" class="btn btn-primary">로그인</button>
+        <button type=" submit" class="btn btn-primary" style=" background-color: red; border-color: red;"><a
+                href="/sign-up" style="color:white; text-decoration: none;">회원가입</a></button>
+    </div>
+</form>
+{% endblock %}

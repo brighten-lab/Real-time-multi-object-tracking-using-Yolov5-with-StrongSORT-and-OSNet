@@ -1,15 +1,43 @@
+.video-container {
+  display: inline;
+  justify-content: center;
+  text-align: center;
+  height:0;
+}
+
+.wrap{
+  position: relative;
+  width: 1220px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.camera{
+  width: 600px;
+  float:left;
+  margin: 5px;
+}
+
 .video {
-  width: 630px;
+  width: 600px;
   height: auto;
   object-fit: cover;
 }
 
-#video1{
-  cursor: pointer;
+#camera_1.check{
+  position: absolute;
+  top: 50%;
+  left: 50%
 }
 
-.video-container {
-  justify-content: center;
-  text-align: center;
-  height:0;
+.btnss{
+  display: inline;
+  width: 60px;
+  position: relative;
+  left: 44%;
+}
+
+.btnss.button{
+  margin: 7px;
 }
