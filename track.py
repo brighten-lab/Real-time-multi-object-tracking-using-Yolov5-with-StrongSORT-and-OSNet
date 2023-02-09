@@ -42,6 +42,7 @@ import threading
 from datetime import datetime
 import pymysql
 import time 
+from datetime import datetime
 from flask import Flask, render_template, Response
 
 import distance_measure as dm
@@ -65,17 +66,20 @@ def max_init():
     global maximum_people
     maximum_people = 0
 
-def db_insert(table, URL, max_people, video_id):
+def db_img_insert(URL, video_id):
     db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='brighten0701', db='action', charset='utf8')
     cursor = db.cursor()
-    sql = "insert into " + table
-    if table == 'video':
-        sql = sql + " (URL, max_people) values (%s, %s)"
-        cursor.execute(sql, (URL, max_people))
-    elif table == 'face':
-        sql = sql + " (URL, video_id) values (%s, %s)"
-        print(sql)
-        cursor.execute(sql, (URL, video_id + '.mp4'))
+    sql = "insert into face (URL, video_id) values (%s, %s)"
+    cursor.execute(sql, (URL, video_id + '.mp4'))
+    db.commit()
+    db.close()
+
+# cameraId, locationId는 임의 값으로 설정해 둠
+def db_video_insert(cameraId, locationId, URL, max_people, start, end):
+    db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='brighten0701', db='action', charset='utf8')
+    cursor = db.cursor()
+    sql = "insert into video (cameraId, locationId, URL, max_people, start, end) values (%s,%s,%s,%s,%s,%s)"
+    cursor.execute(sql, (cameraId, locationId, URL, max_people, start, end))
     db.commit()
     db.close()
 
@@ -87,23 +91,25 @@ def record():
     height = int(cap.get(4))
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     record = False
+    start_time = None
 
     while True:
         ret, frame = cap.read()
-        now = datetime.now().strftime("%d_%H-%M-%S")
+        now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         if detect > 0 and record == False:
             print('녹화 시작')
             video_url = str(now)
             video = cv2.VideoWriter(os.getcwd() + "/web/static/save_video/" + video_url + "_temp.mp4" , fourcc, 20.0, (width, height))
             record = True
             start = time.time()
+            start_time = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         elif detect <= 0 and record == True:
             print('녹화 중지')
             video.release()
             codec_t = threading.Thread(target=codec, args=(os.getcwd() + "/web/static/save_video/" + video_url + "_temp.mp4", os.getcwd() + "/web/static/save_video/" + video_url + ".mp4"))
             codec_t.start()
             record = False
-            db_insert('video', video_url + '.mp4', maximum_people, None)
+            db_video_insert(1,1,video_url + '.mp4', maximum_people, start_time, datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
             max_init()
         if record == True:
             # print('녹화 중')
@@ -114,12 +120,12 @@ def record():
                 codec_t = threading.Thread(target=codec, args=(os.getcwd() + "/web/static/save_video/" + video_url + "_temp.mp4", os.getcwd() + "/web/static/save_video/" + video_url + ".mp4"))
                 codec_t.start()
                 record = False
-                db_insert('video', video_url + '.mp4', maximum_people, None)
+                db_video_insert(1,1,video_url + '.mp4', maximum_people, start_time, datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
                 max_init()
 
 # 코덱 변환
 def codec(path, new_path):
-    os.system(f'ffmpeg -i {path} -vcodec libx264 {new_path}')
+    os.system(f'ffmpeg -i {path} -vcodec libx264 {new_path} -threads 4')
     os.remove(path)
 
 # 얼굴 부분 이미지 저장
@@ -136,7 +142,7 @@ def cropFace(img, id, output):
             os.mkdir(folder)
         img_url = folder + '/' + str(id) + '.jpg'
         cv2.imwrite(img_url, crop_img)
-        db_insert('face', video_url + '/' + str(id) + '.jpg', None, video_url)
+        db_img_insert(video_url + '/' + str(id) + '.jpg', video_url)
         # print('이미지 저장')  
 
 # 거리 측정
@@ -155,7 +161,7 @@ def distance_measure(id, output):
         prev_dis, prev_theta = dm.distance_angle_measure((x1+x2)/2, y2)
         distance[id] = (prev_dis, prev_theta, 0)
 
-    print(distance)
+    # print(distance)
     # 이동거리 = distance[id][2]
     '''
     현재 초기 값을 세팅하지 않아서 이동 거리 측정이 안되는 현상이 있음
