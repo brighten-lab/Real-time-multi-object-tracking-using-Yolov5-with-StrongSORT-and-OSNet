@@ -6,11 +6,11 @@
 
 - tracking/video record/image crop/measure distance 구현
 
-[<img src="https://img.shields.io/badge/신혜민-181717?style=for-the-badge&logo=github&logoColor=white">](https://github.com/heymin2)
+[<img src="https://img.shields.io/badge/안수진-181717?style=for-the-badge&logo=github&logoColor=white">](https://github.com/heymin2)
 
 - 웹서버/siamese network 구현
 
-[<img src="https://img.shields.io/badge/안수진-181717?style=for-the-badge&logo=github&logoColor=white">](https://github.com/ssuzyn)
+[<img src="https://img.shields.io/badge/신혜민-181717?style=for-the-badge&logo=github&logoColor=white">](https://github.com/ssuzyn)
 
 - 로그인/회원가입/통계페이지 구현
 
